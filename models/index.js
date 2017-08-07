@@ -28,11 +28,17 @@ const Page = db.define('page', {
     route() {
       return '/wiki/' + this.urlTitle;
     }
-  }
-}, {
+  },
+
   hooks: {
-    beforeValidate: (page, urlTitle) => {
-      page.urlTitle = createUrl(this.title);
+    beforeValidate: (page, options) => {
+      console.log(page.title)
+      // if (this.title) {
+      //   page.urlTitle = this.title.replace(/\s+/g, '_').replace(/\W/g, '');
+      // } else {
+      //   page.urlTitle = Math.random().toString(36).substring(2, 7);
+      // }
+      page.urlTitle = createUrl(page.title)
     }
   }
 });

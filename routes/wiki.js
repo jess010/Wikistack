@@ -9,7 +9,7 @@ router.get('/', function(req, res, next) {
 });
 
 router.post('/', function(req, res, next) {
-  console.log(req.body);
+  //console.log(req.body);
   var page = Page.build({
     title: req.body.title,
     content: req.body.content,
