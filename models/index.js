@@ -29,6 +29,12 @@ const Page = db.define('page', {
       return '/wiki/' + this.urlTitle;
     }
   }
+}, {
+  hooks: {
+    beforeValidate: (page, urlTitle) => {
+      page.urlTitle = createUrl(this.title);
+    }
+  }
 });
 
 const User = db.define('user', {
@@ -52,6 +58,14 @@ module.exports = {
   db: db
 };
 
+
+function createUrl(title){
+      if (title) {
+        return title.replace(/\s+/g, '_').replace(/\W/g, '');
+      } else {
+        return Math.random().toString(36).substring(2, 7);
+      }
+}
 
 // db.sync()
 //   .then(() => User.create({
