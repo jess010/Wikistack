@@ -28,7 +28,7 @@ app.use('/', routes);
 //console.log(models.db)
 
 
-models.db.sync({force: true})
+models.db.sync()
  .then(function () {
      app.listen(1337, function () {
          console.log('Server is listening on port 1337!');

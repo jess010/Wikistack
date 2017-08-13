@@ -4,10 +4,10 @@ const userRouter = require('./user');
 const router = express.Router();
 
 router.get('/', function(req, res, next){
-  res.send('we got the homepage to work');
+  res.redirect('/wiki/');
 })
 
 router.use('/wiki', wikiRouter);
-router.use('/user', userRouter);
+router.use('/users', userRouter);
 
 module.exports = router;

@@ -4,28 +4,82 @@ const models = require('../models');
 const Page = models.Page;
 const User = models.User;
 
+
 router.get('/', function(req, res, next) {
-  res.redirect('/');
-});
-
-router.post('/', function(req, res, next) {
-  //console.log(req.body);
-  var page = Page.build({
-    title: req.body.title,
-    content: req.body.content,
-    //status: req.body.status
-    //urlTitle: createUrlTitle(req.body.title)
+  Page.findAll()
+  .then(pages => {
+    res.render('index', {pages: pages})
   })
-  page.save();
-   //User build
-  //email: req.body.email,
-  //name: req.body.name,
-
-  res.redirect('/');
+  //res.redirect('/')
 });
+
 
 router.get('/add', function(req, res, next) {
-  res.render('addpage');
+  res.render('addpage')
+});
+
+function findByUrlTitle (url) {
+  return Page.findOne({
+    where: {
+      urlTitle: url
+    }
+  })
+}
+
+function getAuthorFromPage (page) {
+  return User.findOne({
+    where: {id: page.authorId}
+  })
+}
+
+
+router.get('/:urlTitle', function(req, res, next) {
+  //res.send('hit dynamic route at ' + req.params.urlTitle)
+  var pagePromise = findByUrlTitle(req.params.urlTitle)
+  var userPromise = pagePromise.then(page => {return getAuthorFromPage(page)})
+  Promise.all([pagePromise, userPromise])
+  .then(values => {
+    var page = values[0]
+    var user = values[1]
+    res.render('wikipage', {
+      page: page,
+      user: user
+    })
+  })
+  .catch(next)
+});
+
+// function buildPageFromForm (title, content, tags) {
+//   var page = Page.build({
+//     title: title,
+//     content: content,
+//     tags: tags
+//     //authorId: authorId
+//   })
+//   return page;
+// }
+
+function createUserFromForm (name, email) {
+  var user = User.findOrCreate({
+    where: {name: name, email: email}
+  })
+  return user;
+}
+
+router.post('/', function(req, res, next) {
+  //res.json(req.body)
+  createUserFromForm(req.body.name, req.body.email)
+  .then(function (values) {
+    //console.log(values)
+    var user = values[0]
+    //var page = buildPageFromForm(req.body.title, req.body.content, req.body.tags)
+    var page = Page.build(req.body)
+    return page.save().then(function (savedPage) {return savedPage.setAuthor(user)})
+  })
+  .then(function (page) {
+    res.redirect(page.route)
+  })
+  .catch(next);
 });
 
 
